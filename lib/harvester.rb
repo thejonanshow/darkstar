@@ -7,7 +7,8 @@ require 'twitter/json_stream'
 class Harvester
   attr_reader :redis
 
-  def initialize(redis = Ansible.new)
+  def initialize(options, redis = Ansible.new)
+    @options = options # :path, :login, :password
     @redis = redis
   end
 
@@ -21,11 +22,7 @@ class Harvester
 
   def run
     EventMachine::run {
-      stream = create_stream({
-        :path => 'path',
-        :login => 'login',
-        :password => 'password'
-      })
+      stream = create_stream(@options)
 
       stream.each_item do |item|
         tweet = JSON.parse(item)
