@@ -1,5 +1,6 @@
 require 'config/secret/aws_credentials'
 require 'eventmachine'
+require 'timeout'
 
 class Drone
   attr_reader :server
@@ -8,8 +9,42 @@ class Drone
     @server = server
   end
 
-  def implant(payload)
-    @server.wait_for { ready? && @server.ssh('ls') }
+  def implant(payload, tries = 5, timeout = 1)
+    wait_for_server(30, timeout)
+    count = 1
+
+    begin
+      Timeout.timeout timeout, ImplantTimeout do
+        install(payload)
+      end
+    rescue ImplantTimeout => e
+      count += 1
+      if count <= tries
+        retry
+      else
+        raise e
+      end
+    end
+  end
+
+  def wait_for_server(tries = 30, timeout = 1)
+    count = 1
+
+    begin
+      Timeout.timeout timeout, ServerReadyTimeout do
+        @server.wait_for { ready? }
+      end
+    rescue ServerReadyTimeout => e
+      count += 1
+      if count <= tries
+        retry
+      else
+        raise e
+      end
+    end
+  end
+
+  def install(payload)
     filename = underscore(payload.class) + '.rb'
     @server.scp("lib/#{filename}", "#{filename}")
     @server.ssh("implant.sh #{filename}")
@@ -28,3 +63,6 @@ class Drone
       downcase
   end
 end
+
+class ServerReadyTimeout < Timeout::Error; end
+class ImplantTimeout < Timeout::Error; end

@@ -1,11 +1,13 @@
 require 'json'
+require 'ansible'
 require 'eventmachine'
+require 'config/initializers/redis'
 require 'twitter/json_stream'
 
 class Harvester
   attr_reader :redis
 
-  def initialize(redis = REDIS)
+  def initialize(redis = Ansible.new)
     @redis = redis
   end
 

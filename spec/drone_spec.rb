@@ -1,7 +1,9 @@
 require 'spec_helper'
 require 'drone'
+require 'timecop'
 
 class Payload
+  # the class name is used to derive the filename
 end
 
 describe Drone do
@@ -29,6 +31,14 @@ describe Drone do
       drone.server.stub(:wait_for)
       drone.server.should_receive(:ssh).with("implant.sh payload.rb")
       drone.implant(payload)
+    end
+
+    it "raises an implant timeout error on timeout" do
+      drone.stub(:wait_for_server)
+      drone.server.should_receive(:scp) { sleep 3 }
+      Timecop.freeze(Time.now + 10) do
+        expect { drone.implant(payload, 0, 0.0001) }.to raise_error ImplantTimeout
+      end
     end
   end
 end

@@ -33,5 +33,7 @@ describe Mothership do
     it "creates a new server in servers" do
       expect { mothership.spawn_server }.to change { mothership.servers.length }.by(1)
     end
+
+    it "sets a time to live on the server with a 55 minute default"
   end
 end
