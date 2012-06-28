@@ -16,7 +16,7 @@ describe Mothership do
     drone = mothership.spawn_drone
     drone.server.public_ip_address = '127.0.0.1'
     drone.server.should_receive(:ready?).and_return(true)
-    drone.server.should_receive(:scp).with("lib/harvester.rb", "harvester.rb")
+    drone.server.should_receive(:scp).with("implants/harvester.implant", "harvester.rb")
     drone.server.should_receive(:ssh).with("implant.sh harvester.rb")
     drone.implant(Harvester.new(:ansible => ansible))
   end

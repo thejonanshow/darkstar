@@ -23,12 +23,10 @@ describe Drone do
   end
 
   context "#implant" do
-    it "packages the class for upload"
-
     it "uploads the file to the server" do
       drone.server.stub(:ssh)
       drone.server.stub(:wait_for)
-      drone.server.should_receive(:scp).with('lib/payload.rb', 'payload.rb')
+      drone.server.should_receive(:scp).with('implants/payload.implant', 'payload.rb')
       drone.implant(payload)
     end
 
@@ -50,7 +48,7 @@ describe Drone do
     it "is included in the drone's implants" do
       drone.server.stub(:ssh)
       drone.server.stub(:wait_for)
-      drone.server.should_receive(:scp).with('lib/payload.rb', 'payload.rb')
+      drone.server.should_receive(:scp).with('implants/payload.implant', 'payload.rb')
       expect { drone.implant(payload) }.to change { drone.implants.count }.by(1)
     end
   end

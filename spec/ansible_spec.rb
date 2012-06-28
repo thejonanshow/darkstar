@@ -25,16 +25,48 @@ describe Ansible do
     expect { ansible.set('a', 1) }.to raise_error Redis::CommandError
   end
 
-  it "requests credentials for an id on redis"
-  
-  context "#get_credentials" do
-    it "gets credentials"
+  context "#send_home" do
+    it "publishes a message to the mothership_id" do
+      redis.set('mothership_id', '1')
+      msg = {:method => 'send_credentials'}
+      home_msg = msg.tap { |m| m[:to] = '1'; m[:from] = ansible.id }
+      redis.should_receive(:publish).with('mothership', home_msg.to_json)
+      ansible.send_home(msg)
+    end
   end
-  context "#sends_credentials" do
-    it "gets credentials"
+
+  context "#send_home_and_wait" do
+    it "publishes a message to the mothership_id and blocks until it receives a response" do
+      redis.set('mothership_id', '1')
+      msg = {:method => 'send_credentials'}
+      home_msg = msg.tap { |m| m[:to] = '1'; m[:from] = ansible.id }
+      redis.should_receive(:publish).with('mothership', home_msg.to_json)
+      redis.should_receive(:psubscribe).with('*')
+      ansible.send_home_and_wait(msg, 'credentials')
+    end
   end
-  context "#sends_messages" do
-    it "gets credentials"
+
+  context "#send_message" do
+    it "sends a message from the ansible id" do
+      msg = {:from => ansible.id, :method => 'send_credentials'}
+      redis.should_receive(:publish).with('darkstar', msg.to_json)
+      ansible.send_message(msg)
+    end
+
+    it "optionally accepts a target id" do
+      msg = {:to => '1', :from => ansible.id, :method => 'send_credentials'}
+      redis.should_receive(:publish).with('darkstar', msg.to_json)
+      ansible.send_message(msg, '1')
+    end
+  end
+
+  context "#send_and_wait" do
+    it "sends a message and blocks until it receives a response" do
+      msg = {:from => ansible.id, :method => 'send_credentials'}
+      redis.should_receive(:publish).with('darkstar', msg.to_json)
+      redis.should_receive(:psubscribe).with('*')
+      ansible.send_and_wait(msg, 'credentials')
+    end
   end
 
   context "com_link" do

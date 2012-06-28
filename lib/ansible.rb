@@ -25,18 +25,30 @@ class Ansible
     end
   end
 
-  def get_credentials
+  def send_home(message)
+    message[:to] = @redis.get('mothership_id')
+    message[:from] = @id
+    publish_message('mothership', message.to_json)
   end
 
-  def send_credential(credential_json)
+  def send_home_and_wait(message, key)
+    send_home(message)
+    wait_for_message_with(key)
   end
 
-  def send_message(channel, message)
+  def send_message(message, to_id = nil)
+    message[:to] = to_id if to_id
+    message[:from] = @id
+    publish_message('darkstar', message.to_json)
+  end
+
+  def send_and_wait(message, key)
+    send_message(message)
+    wait_for_message_with(key)
+  end
+
+  def publish_message(channel, message)
     @redis.publish channel, message
-  end
-
-  def new_message(message)
-    puts message
   end
 
   def generate_id
@@ -44,7 +56,7 @@ class Ansible
   end
 
   def wait_for_message_with(key)
-    puts Com.new(self).wait_for_message_with(key)
+    Com.new(self).wait_for_message_with(key)
   end
 end
 

@@ -49,7 +49,8 @@ class Mothership
     @available_credentials += Marshal.load(File.read(filename))
   end
 
-  def send_credential_to(id)
-    @ansible.send_credential({id => get_credentials}.to_json)
+  def send_credentials(id)
+    msg = { :credentials => get_credentials }
+    @ansible.send_message(msg, id)
   end
 end

@@ -48,9 +48,9 @@ class Drone
   end
 
   def install(implant)
-    filename = underscore(implant.class) + '.rb'
-    @server.scp("lib/#{filename}", "#{filename}")
-    @server.ssh("implant.sh #{filename}")
+    filename = underscore(implant.class)
+    @server.scp("implants/#{filename + '.implant'}", "#{filename + '.rb'}")
+    @server.ssh("implant.sh #{filename + '.rb'}")
   end
 
   def die!

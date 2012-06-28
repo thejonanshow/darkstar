@@ -7,7 +7,9 @@ describe Mothership do
     Fog.mock!
   end
 
-  let(:mothership) { Mothership.new }
+  let(:redis) { MockRedis.new }
+  let(:ansible) { Ansible.new(redis) }
+  let(:mothership) { Mothership.new(ansible) }
 
   it "initiates an AWS connection on instantiation" do
     mothership.connection.should_not be_nil
@@ -38,15 +40,12 @@ describe Mothership do
   end
 
   context "#send_credentials" do
-    it "sends a credential to the given id on the ansible" do
-      redis = MockRedis.new
-      ansible = Ansible.new(redis)
-      m = Mothership.new(ansible)
-      credential = { :login => 'foo', :password => 'bar' }
-      m.add_credentials(credential)
-      credential_json = {'123' => credential}.to_json
-      ansible.should_receive(:send_credential).with(credential_json)
-      m.send_credential_to('123')
+    it "sends credentials to the given id on the ansible" do
+      credentials = { :login => 'foo', :password => 'bar' }
+      mothership.add_credentials(credentials)
+      msg = {:credentials => credentials, :to => '123', :from => ansible.id }
+      redis.should_receive(:publish).with('darkstar', msg.to_json)
+      mothership.send_credentials('123')
     end
   end
 
@@ -54,7 +53,7 @@ describe Mothership do
     it "returns all credentials currently in use" do
       credential = { :login => 'foo', :password => 'bar' }
       mothership.add_credentials(credential)
-      mothership.send_credential_to("foobar")
+      mothership.send_credentials("foobar")
       mothership.available_credentials.should_not include credential
       mothership.used_credentials.should include(credential)
     end
