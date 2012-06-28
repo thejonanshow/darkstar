@@ -9,14 +9,7 @@ describe Mothership do
   let(:mothership) { Mothership.new }
 
   it "initiates an AWS connection on instantiation" do
-    Fog::Compute.should_receive(:new).with(
-      hash_including(
-        :provider,
-        :aws_access_key_id,
-        :aws_secret_access_key
-      )
-    )
-    Mothership.new
+    mothership.connection.should_not be_nil
   end
 
   context "#spawn_drone" do
@@ -33,7 +26,25 @@ describe Mothership do
     it "creates a new server in servers" do
       expect { mothership.spawn_server }.to change { mothership.servers.length }.by(1)
     end
+  end
 
-    it "sets a time to live on the server with a 55 minute default"
+  context "#used_credentials" do
+    it "returns all credentials currently in use" do
+      credential = { :login => 'foo', :password => 'bar' }
+      mothership.available_credentials << credential
+      mothership.spawn_drone.implant(Harvester.new(:ansible => Ansible.new))
+      mothership.available_credentials.should_not include credential
+      mothership.used_credentials.should include(credential)
+    end
+  end
+
+  context "#load_credentials" do
+    it "loads credentials from a file" do
+      credential = { :login => 'foo', :password => 'bar' }
+      File.write('spec/fixtures/test.dmp', Marshal.dump([credential]))
+      mothership.available_credentials.should_not include credential
+      mothership.load_credentials('spec/fixtures/test.dmp')
+      mothership.available_credentials.should include credential
+    end
   end
 end

@@ -10,8 +10,8 @@ class FakeStream
 end
 
 describe Harvester do
-  let(:redis) { MockRedis.new }
-  let(:harvester) { Harvester.new(redis) }
+  let(:ansible) { Ansible.new(MockRedis.new) }
+  let(:harvester) { Harvester.new(:ansible => ansible) }
 
   context "#run" do
     it "connects to the twitter streaming api" do

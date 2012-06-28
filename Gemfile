@@ -2,6 +2,7 @@ source :rubygems
 
 gem 'fog'
 gem 'redis'
+gem 'redis-namespace'
 gem 'eventmachine'
 gem 'twitter-stream'
 

@@ -1,15 +1,16 @@
 require 'json'
 require 'ansible'
 require 'eventmachine'
-require 'config/initializers/redis'
+require 'config/secret/twitter_credentials'
 require 'twitter/json_stream'
 
 class Harvester
-  attr_reader :redis
+  attr_reader :ansible, :credentials
+  attr_writer :credentials
 
-  def initialize(options, redis = Ansible.new)
-    @options = options # :path, :login, :password
-    @redis = redis
+  def initialize(options = {})
+    @options = set_default_twitter_options(options)
+    @ansible = set_ansible(options)
   end
 
   def create_stream(options)
@@ -26,7 +27,7 @@ class Harvester
 
       stream.each_item do |item|
         tweet = JSON.parse(item)
-        @redis.set(tweet[:id], tweet)
+        @ansible.set(tweet[:id], tweet)
         # Do someting with unparsed JSON item.
       end
 
@@ -44,5 +45,16 @@ class Harvester
         # connection, reconnecting is probably in order
       end
     }
+  end
+
+  def set_default_twitter_options(options)
+    options[:method] ||= 'GET'
+    options[:path] ||= '/1/statuses/sample.json'
+    options
+  end
+
+  def set_ansible(options)
+    raise ArgumentError.new("Harvester requires an Ansible") unless options[:ansible]
+    options[:ansible]
   end
 end
