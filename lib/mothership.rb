@@ -5,15 +5,17 @@ require 'harvester'
 require 'secret/aws_credentials'
 
 class Mothership
-  attr_reader :drones, :connection, :servers, :available_credentials
+  attr_reader :drones, :connection, :servers, :available_credentials, :used_credentials
 
-  def initialize
+  def initialize(ansible = Ansible.new)
     @connection = Fog::Compute.new({
       :provider => 'AWS',
       :aws_access_key_id => AWS_ACCESS_KEY_ID,
       :aws_secret_access_key => AWS_SECRET_ACCESS_KEY
     })
+    @ansible = ansible
     @available_credentials = []
+    @used_credentials = []
     @servers = @connection.servers
     @drones = @servers.map do |srv|
       Drone.new(srv) if %w[running pending].include? srv.state
@@ -33,15 +35,21 @@ class Mothership
     ).tap { |srv| @servers << srv }
   end
 
-  def get_credentials
-    @available_credentials.pop
+  def add_credentials(credential)
+    @available_credentials << credential
   end
 
-  def used_credentials
-    @drones.map(&:used_credentials).flatten
+  def get_credentials
+    credential = @available_credentials.pop
+    @used_credentials << credential
+    credential
   end
 
   def load_credentials(filename)
     @available_credentials += Marshal.load(File.read(filename))
+  end
+
+  def send_credential_to(id)
+    @ansible.send_credential({id => get_credentials}.to_json)
   end
 end

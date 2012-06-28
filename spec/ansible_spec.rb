@@ -24,4 +24,6 @@ describe Ansible do
     redis.should_not_receive(:auth)
     expect { ansible.set('a', 1) }.to raise_error Redis::CommandError
   end
+
+  it "requests credentials for an id on redis"
 end

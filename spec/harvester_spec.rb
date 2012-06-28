@@ -13,6 +13,12 @@ describe Harvester do
   let(:ansible) { Ansible.new(MockRedis.new) }
   let(:harvester) { Harvester.new(:ansible => ansible) }
 
+  it "requests credentials on the ansible after creation" do
+    a = ansible
+    ansible.should_receive(:get_credentials)
+    Harvester.new(:ansible => a)
+  end
+
   context "#run" do
     it "connects to the twitter streaming api" do
       fake_stream = FakeStream.new

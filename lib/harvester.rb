@@ -3,14 +3,16 @@ require 'ansible'
 require 'eventmachine'
 require 'config/secret/twitter_credentials'
 require 'twitter/json_stream'
+require 'digest/md5'
 
 class Harvester
   attr_reader :ansible, :credentials
-  attr_writer :credentials
 
   def initialize(options = {})
+    @id = generate_id
     @options = set_default_twitter_options(options)
     @ansible = set_ansible(options)
+    @credentials = @ansible.get_credentials(@id)
   end
 
   def create_stream(options)
@@ -56,5 +58,9 @@ class Harvester
   def set_ansible(options)
     raise ArgumentError.new("Harvester requires an Ansible") unless options[:ansible]
     options[:ansible]
+  end
+
+  def generate_id
+    Digest::MD5.hexdigest("#{Time.now.to_f}#{rand(777)}")
   end
 end

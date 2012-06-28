@@ -17,4 +17,10 @@ class Ansible
       end
     end
   end
+
+  def get_credentials(id)
+  end
+
+  def send_credential(credential_json)
+  end
 end

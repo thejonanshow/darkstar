@@ -12,9 +12,6 @@ class Drone
   end
 
   def implant(implant, tries = 5, timeout = 1)
-    implant.credentials = @mothership.get_credentials
-    raise InvalidCredentials unless valid_credentials?(implant)
-
     wait_for_server(30, timeout)
     count = 1
 
@@ -68,16 +65,7 @@ class Drone
       tr("-", "_").
       downcase
   end
-
-  def valid_credentials?(implant)
-    !implants.map(&:credentials).include?(implant.credentials)
-  end
-
-  def used_credentials
-    @implants.map(&:credentials)
-  end
 end
 
 class ServerReadyTimeout < Timeout::Error; end
 class ImplantTimeout < Timeout::Error; end
-class InvalidCredentials < ArgumentError; end

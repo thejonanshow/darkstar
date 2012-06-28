@@ -8,9 +8,6 @@ class Payload
 end
 
 class FakeMothership
-  def get_credentials
-    {:login => 'foo', :password => 'bar'}
-  end
 end
 
 describe Drone do
@@ -26,6 +23,8 @@ describe Drone do
   end
 
   context "#implant" do
+    it "packages the class for upload"
+
     it "uploads the file to the server" do
       drone.server.stub(:ssh)
       drone.server.stub(:wait_for)
@@ -53,14 +52,6 @@ describe Drone do
       drone.server.stub(:wait_for)
       drone.server.should_receive(:scp).with('lib/payload.rb', 'payload.rb')
       expect { drone.implant(payload) }.to change { drone.implants.count }.by(1)
-    end
-
-    it "raises an invalid credentials error when given credentials are in use" do
-      drone.server.stub(:ssh)
-      drone.server.stub(:wait_for)
-      drone.server.should_receive(:scp).with('lib/payload.rb', 'payload.rb')
-      drone.implant(payload)
-      expect { drone.implant(payload) }.to raise_error InvalidCredentials
     end
   end
 end

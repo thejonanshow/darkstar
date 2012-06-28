@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'mothership'
+require 'mock_redis'
 
 describe Mothership do
   before(:each) do
@@ -28,11 +29,32 @@ describe Mothership do
     end
   end
 
+  context "#add_credential" do
+    it "adds a credential to the available credentials" do
+      credential = { :login => 'foo', :password => 'bar' }
+      mothership.add_credentials(credential)
+      mothership.available_credentials.should include credential
+    end
+  end
+
+  context "#send_credentials" do
+    it "sends a credential to the given id on the ansible" do
+      redis = MockRedis.new
+      ansible = Ansible.new(redis)
+      m = Mothership.new(ansible)
+      credential = { :login => 'foo', :password => 'bar' }
+      m.add_credentials(credential)
+      credential_json = {'123' => credential}.to_json
+      ansible.should_receive(:send_credential).with(credential_json)
+      m.send_credential_to('123')
+    end
+  end
+
   context "#used_credentials" do
     it "returns all credentials currently in use" do
       credential = { :login => 'foo', :password => 'bar' }
-      mothership.available_credentials << credential
-      mothership.spawn_drone.implant(Harvester.new(:ansible => Ansible.new))
+      mothership.add_credentials(credential)
+      mothership.send_credential_to("foobar")
       mothership.available_credentials.should_not include credential
       mothership.used_credentials.should include(credential)
     end
