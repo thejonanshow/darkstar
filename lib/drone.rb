@@ -49,8 +49,18 @@ class Drone
 
   def install(implant)
     filename = underscore(implant.class)
+    build_implant_file(filename)
     @server.scp("implants/#{filename + '.implant'}", "#{filename + '.rb'}")
     @server.ssh("implant.sh #{filename + '.rb'}")
+  end
+
+  def build_implant_file(filename, source_dir = 'lib', target_dir = 'implants')
+    files = [ "config/initializers/redis.rb",
+              "#{source_dir}/ansible.rb",
+              "#{source_dir}/#{filename}.rb"]
+
+    implant = files.map { |f| File.read(f) }.join("\n")
+    File.write("#{target_dir}/#{filename}.implant", implant)
   end
 
   def die!
