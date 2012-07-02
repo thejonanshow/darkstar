@@ -7,5 +7,6 @@ if ENV['DARKSTAR_ENV'] == 'production'
   redis.auth(REDIS_PASSWORD)
   REDIS = Redis::Namespace.new(:darkstar, redis)
 else
-  REDIS = true
+  redis = Redis.new(:host => 'localhost', :port => 6379)
+  REDIS = Redis::Namespace.new(:darkstar, redis)
 end

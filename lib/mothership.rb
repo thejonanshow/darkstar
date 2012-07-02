@@ -53,4 +53,8 @@ class Mothership
     msg = { :credentials => get_credentials }
     @ansible.send_message(msg, id)
   end
+
+  def new_message(msg)
+    puts msg
+  end
 end

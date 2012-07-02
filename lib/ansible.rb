@@ -1,6 +1,7 @@
 require 'config/initializers/redis.rb'
 require 'digest/md5'
 require 'json'
+require 'com'
 
 class Ansible
   attr_reader :redis, :com, :com_link, :id
@@ -52,44 +53,16 @@ class Ansible
   end
 
   def generate_id
-    Digest::MD5.hexdigest("#{Time.now.to_f}#{rand(777)}")
+    id = Digest::MD5.hexdigest("#{Time.now.to_f}#{rand(777)}")
+    puts id
+    id
   end
 
   def wait_for_message_with(key)
     Com.new(self).wait_for_message_with(key)
   end
-end
 
-class Com
-  attr_reader :redis
-
-  def initialize(caller)
-    @redis = caller.redis
-    @caller = caller
-  end
-
-  def run
-    @redis.psubscribe('*') do |on|
-      on.pmessage do |pattern, channel, msg|
-        @caller.new_message(msg) if my_message?(msg)
-      end
-    end
-  end
-
-  def wait_for_message_with(key)
-    id = @caller.id
-    message = nil
-    @redis.psubscribe('*') do |on|
-      on.pmessage do |pattern, channel, msg|
-        parsed = JSON.parse(msg)
-        message = parsed if my_message?(parsed) && parsed[key]
-        @redis.punsubscribe('*') if message
-      end
-    end
-    message
-  end
-
-  def my_message?(parsed_message)
-    parsed_message['to'] == @caller.id
+  def new_message(msg)
+    puts msg
   end
 end
