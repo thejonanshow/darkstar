@@ -79,6 +79,16 @@ describe Drone do
       File.exist?('spec/fixtures/payload.implant').should be_true
       contents = File.read('spec/fixtures/payload.implant')
       contents.should include "foo\nbar"
+    end
+
+
+    pending "writes the executable lines to the implant file" do
+      File.write('spec/fixtures/ansible.rb', 'foo')
+      File.write('spec/fixtures/payload.rb', 'bar')
+
+      drone.build_implant_file(drone.underscore(payload.class), 'spec/fixtures', 'spec/fixtures')
+
+      contents = File.read('spec/fixtures/payload.implant')
       contents.should include "#!/usr/bin/env ruby"
       contents.should include "Payload.new.run"
     end
