@@ -7,7 +7,6 @@ class Com
   end
 
   def run
-    puts "subscribed to #{REDIS.inspect}"
     @redis.psubscribe('*') do |on|
       on.pmessage do |pattern, channel, msg|
         @caller.new_message(msg) if my_message?(msg)
@@ -16,7 +15,6 @@ class Com
   end
 
   def wait_for_message_with(key)
-    puts "wait_for_message_with"
     id = @caller.id
     message = nil
     @redis.psubscribe('*') do |on|

@@ -53,9 +53,7 @@ class Ansible
   end
 
   def generate_id
-    id = Digest::MD5.hexdigest("#{Time.now.to_f}#{rand(777)}")
-    puts id
-    id
+    Digest::MD5.hexdigest("#{Time.now.to_f}#{rand(777)}")
   end
 
   def wait_for_message_with(key)
