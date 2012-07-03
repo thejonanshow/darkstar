@@ -1,7 +1,7 @@
 require 'config/initializers/redis.rb'
 require 'digest/md5'
 require 'json'
-require 'com'
+require 'lib/com'
 
 class Ansible
   attr_reader :redis, :com, :com_link, :id
