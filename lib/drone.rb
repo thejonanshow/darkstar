@@ -1,5 +1,4 @@
 require 'config/secret/aws_credentials'
-require 'eventmachine'
 require 'timeout'
 
 class Drone

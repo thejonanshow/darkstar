@@ -1,6 +1,6 @@
 require 'spec_helper'
-require 'ansible'
 require 'redis'
+require 'ansible'
 require 'mock_redis'
 
 describe Ansible do
@@ -70,11 +70,15 @@ describe Ansible do
   end
 
   context "com_link" do
-    it "creates a com_link thread when instantiated" do
+    it "is created when an ansible is initialized" do
       ansible.com_link.should_not be_nil
     end
 
-    it "uses the redis from ansible" do
+    it "is in a live thread" do
+      ansible.com_link.should be_alive
+    end
+
+    it "uses the redis from the ansible" do
       ansible.redis.should == ansible.com.redis
     end
   end

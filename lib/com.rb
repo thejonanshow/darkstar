@@ -6,7 +6,7 @@ class Com
     @caller = caller
   end
 
-  def run
+  def call
     @redis.psubscribe('*') do |on|
       on.pmessage do |pattern, channel, msg|
         @caller.new_message(msg) if my_message?(msg)

@@ -26,7 +26,7 @@ class Harvester
     )
   end
 
-  def run
+  def call
     EventMachine::run {
       stream = create_stream(@options)
 
@@ -57,5 +57,4 @@ class Harvester
     options[:path] ||= '/1/statuses/sample.json'
     options
   end
-
 end

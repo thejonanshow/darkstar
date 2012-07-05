@@ -1,5 +1,5 @@
 ENV['DARKSTAR_ENV'] = 'test'
-$LOAD_PATH.unshift('./', '../lib').uniq!
+$LOAD_PATH.unshift('./', './lib').uniq!
 
 require 'mock_redis'
 
