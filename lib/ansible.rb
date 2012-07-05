@@ -10,7 +10,7 @@ class Ansible
     @id = generate_id
     @redis = redis
     @com = Com.new(self)
-    @com_link = Thread.new { @com.run }
+    @com_link = Thread.new { @com.call }
   end
 
   def set(key, value)

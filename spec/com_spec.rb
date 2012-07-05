@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'com'
 
 describe Com do
-  it "listens to redis on all channels when called" do
+  xit "listens to redis on all channels when called" do
     redis = MockRedis.new
     ansible = double(:ansible)
     ansible.stub(:redis).and_return(redis)
@@ -11,7 +11,7 @@ describe Com do
     com.call
   end
 
-  it "listens to redis on all channels when called" do
+  it "listens to redis on all channels when waiting for a message" do
     redis = MockRedis.new
     ansible = double(:ansible)
     ansible.stub(:redis).and_return(redis)

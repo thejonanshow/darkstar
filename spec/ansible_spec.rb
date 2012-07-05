@@ -69,13 +69,9 @@ describe Ansible do
     end
   end
 
-  context "com_link" do
+  context "com" do
     it "is created when an ansible is initialized" do
-      ansible.com_link.should_not be_nil
-    end
-
-    it "is in a live thread" do
-      ansible.com_link.should be_alive
+      ansible.com.should_not be_nil
     end
 
     it "uses the redis from the ansible" do
